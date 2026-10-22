@@ -6,17 +6,17 @@
 /* Layout: рабочее место кладовщика — окно сканера слева, журнал считанных кодов справа; на телефоне друг под другом */
 :root{
   --bg:#eef0ee; --panel:#ffffff; --ink:#15191c; --muted:#5d6a68; --line:#d5dbd8;
-  --laser:#e0312b; --ok:#1f7a4d; --ok-bg:#e3f2ea; --bad-bg:#fbe7e5; --chip:#e6ebe8;
+  --laser:#e0312b; --ok:#1f7a4d; --ok-bg:#e3f2ea; --bad-bg:#fbe7e5; --warn:#a86b00; --warn-bg:#fdf3d6; --chip:#e6ebe8;
   --font-display:"Unbounded","Golos Text",system-ui,sans-serif;
   --font-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#121615; --panel:#1b2120; --ink:#e8ecea; --muted:#94a19e; --line:#2d3533;
-  --laser:#ff5a4f; --ok:#5fd09a; --ok-bg:#183428; --bad-bg:#3a1d1b; --chip:#252d2b; color-scheme:dark}}
+  --laser:#ff5a4f; --ok:#5fd09a; --ok-bg:#183428; --bad-bg:#3a1d1b; --warn:#f0bf4c; --warn-bg:#3a3018; --chip:#252d2b; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#121615; --panel:#1b2120; --ink:#e8ecea; --muted:#94a19e; --line:#2d3533;
-  --laser:#ff5a4f; --ok:#5fd09a; --ok-bg:#183428; --bad-bg:#3a1d1b; --chip:#252d2b; color-scheme:dark}
+  --laser:#ff5a4f; --ok:#5fd09a; --ok-bg:#183428; --bad-bg:#3a1d1b; --warn:#f0bf4c; --warn-bg:#3a3018; --chip:#252d2b; color-scheme:dark}
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -66,6 +66,8 @@ h1 span{color:var(--laser)}
 @media (prefers-reduced-motion:reduce){.laser{animation:none}}
 .vp-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center;color:#d9e0dd;font-size:14px}
 .vp-msg strong{font-family:var(--font-display);font-weight:500;font-size:16px;color:#fff}
+.vp-msg.done{justify-content:flex-end;padding-bottom:18px;background:linear-gradient(transparent 55%,rgb(0 0 0/.55))}
+.btn.big{padding:12px 20px;font-size:15px}
 .flash{position:absolute;inset:0;border:4px solid var(--ok);border-radius:8px;opacity:0;pointer-events:none;transition:opacity .15s}
 .flash.on{opacity:1}
 
@@ -122,12 +124,14 @@ ul.hist li:first-child{border-top:0}
 dl.fields{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 16px;margin:0;font-size:14px}
 dl.fields dt{color:var(--muted)}
 dl.fields dd{margin:0;font-weight:500;word-break:break-word}
-dl.fields dd.mono{font-family:var(--font-mono)}
+dl.fields dd.mono{font-family:var(--font-mono);font-size:clamp(17px,2.2vw,20px);font-weight:700;letter-spacing:.02em}
+dl.fields dd.mono small{font-size:13px;font-weight:500;color:var(--muted);margin-left:6px;letter-spacing:0}
 .pk{display:flex;flex-direction:column;gap:6px}
 .pk-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
 .pk-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 10px;border-radius:6px;background:var(--panel);font-size:13.5px;cursor:pointer;border:1px solid transparent;text-align:left;color:var(--ink);font-family:var(--font-body)}
-.pk-row.cur{border-color:var(--ok)}
+.pk-row.cur{border-color:var(--ok);background:var(--ok-bg)}
 .pk-row .mono{font-family:var(--font-mono);color:var(--muted);font-size:12.5px}
+.pk-row .pk-code{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--ink);letter-spacing:.02em}
 .h-name{font-size:13px;color:var(--ink);grid-column:1}
 .h-miss{font-size:12px;color:var(--laser);font-weight:600}
 .oem{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:6px;background:var(--panel)}
@@ -145,12 +149,13 @@ dl.fields dd.mono{font-family:var(--font-mono)}
 .onec.ok .onec-ico{background:var(--ok)}.onec.bad .onec-ico{background:var(--laser)}
 .onec-reason{font-size:13px;color:var(--muted)}
 .onec-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 12px;padding:7px 10px;border-radius:5px;font-size:13.5px;border-left:4px solid}
-.onec-row.good{border-color:var(--ok);background:var(--ok-bg)}
+.onec-row.good{border-color:var(--warn);background:var(--warn-bg)}
+.onec-row.good.cur{border-color:var(--ok);background:var(--ok-bg)}
 .onec-row.bad{border-color:var(--laser);background:var(--bad-bg)}
 .onec-row.cur{font-weight:600}
 .onec-name{min-width:0;word-break:break-word}
 .onec-norm{font:12.5px var(--font-mono);white-space:nowrap}
-.onec-row.good .onec-norm{color:var(--ok)}.onec-row.bad .onec-norm{color:var(--laser)}
+.onec-row.good .onec-norm{color:var(--warn)}.onec-row.good.cur .onec-norm{color:var(--ok)}.onec-row.bad .onec-norm{color:var(--laser)}
 .popup{position:fixed;inset:0;display:grid;place-items:center;z-index:50;pointer-events:none;background:rgb(0 0 0/.25);padding:16px}
 .pop-box{background:var(--panel);border-radius:14px;padding:26px 28px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;max-width:420px;box-shadow:0 20px 50px rgb(0 0 0/.3);border:3px solid var(--line);animation:pop .18s ease-out}
 .popup.ok .pop-box{border-color:var(--ok)}.popup.bad .pop-box{border-color:var(--laser)}
@@ -524,7 +529,7 @@ function showResult(r,forceIdx){
   const h=el('h3',null,name);
   const dl=el('dl','fields');
   const add=(k,v,mono)=>{if(!v) return;dl.append(el('dt',null,k));const d=el('dd',mono?'mono':null,v);dl.append(d)};
-  add('Бренд',brand);add('Упаковка',pack);add('Код',code+(type?` · ${type}`:''),true);add('Примечание',note);
+  add('Бренд',brand);add('Упаковка',pack);add('Код',code,true);if(type) dl.lastChild.appendChild(el('small',null,type));add('Примечание',note);
   const btns=el('div','row');
   const c1=el('button','btn primary','Копировать артикул');c1.onclick=()=>copy(art,c1);
   const c2=el('button','btn','Копировать код');c2.onclick=()=>copy(code,c2);
@@ -561,7 +566,7 @@ function showResult(r,forceIdx){
     const pk=el('div','pk');pk.appendChild(el('div','pk-title',`Все упаковки артикула (${sibs.length})`));
     sibs.forEach(i=>{
       const s=DB[i];const b=el('button','pk-row'+(i===hit.idx?' cur':''));
-      b.append(el('span',null,s[5]||'—'),el('span','mono',s[4]||''),el('span','mono',s[3]));
+      b.append(el('span',null,s[5]||'—'),el('span','mono',s[4]||''),el('span','pk-code',s[3]));
       b.onclick=()=>showResult({text:s[3],format:''},i);pk.appendChild(b);
     });
     box.appendChild(pk);
@@ -653,7 +658,7 @@ async function startCam(deviceId){
     const cons={video:deviceId?{deviceId:{exact:deviceId}}:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false};
     stream=await navigator.mediaDevices.getUserMedia(cons);
     video.srcObject=stream;await video.play();
-    video.hidden=false;$('reticle').hidden=false;$('vpMsg').hidden=true;$('stopCam').hidden=false;
+    video.hidden=false;$('preview').hidden=true;$('vpMsg').classList.remove('done');$('reticle').hidden=false;$('vpMsg').hidden=true;$('stopCam').hidden=false;
     status('Наведите на код. Держите его в рамке, без бликов.');
     listCams();loopOn=true;scanLoop();
   }catch(e){camFail(e)}
@@ -667,6 +672,20 @@ function camFail(e){
   const rb=document.createElement('button');rb.className='btn';rb.textContent='Повторить';rb.onclick=()=>startCam();
   m.append(s,p,b,rb);
   status('');
+}
+let lastDevice=null;
+function freezeAndStop(){
+  loopOn=false;
+  try{
+    lastDevice=stream&&stream.getVideoTracks()[0]?.getSettings().deviceId||null;
+    const pv=$('preview');pv.width=video.videoWidth;pv.height=video.videoHeight;
+    pv.getContext('2d').drawImage(video,0,0);pv.hidden=false;
+  }catch(e){}
+  stopCam(true);
+  const m=$('vpMsg');m.textContent='';m.hidden=false;m.classList.add('done');
+  const b=document.createElement('button');b.className='btn primary big';b.textContent='Сканировать следующий';
+  b.onclick=()=>{m.classList.remove('done');$('preview').hidden=true;startCam(lastDevice)};
+  m.appendChild(b);
 }
 function stopCam(silent){
   loopOn=false;
@@ -690,12 +709,18 @@ async function scanLoop(){
     for(const r of hits){
       if(!r.text) continue;
       if(r.text===lastHit.text&&now-lastHit.t<2500){lastHit.t=now;continue}
-      lastHit={text:r.text,t:now};addResult(r);beep();flash();
+      lastHit={text:r.text,t:now};
+      freezeAndStop();
+      addResult(r);beep();flash();
+      if(window.innerWidth<860) setTimeout(()=>{const y=$('result').getBoundingClientRect().top+window.scrollY-12;window.scrollTo({top:y,behavior:'smooth'})},120);
+      return;
     }
   }
   setTimeout(()=>requestAnimationFrame(scanLoop),native?120:200);
 }
 $('startCam').onclick=()=>startCam();
+/* камера ушла с экрана при прокрутке — выключаем, чтобы не тратить батарею */
+try{new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting&&loopOn&&stream) freezeAndStop()})},{threshold:0.15}).observe($('vp'))}catch(e){}
 $('stopCam').onclick=()=>stopCam();
 $('camSelect').onchange=e=>startCam(e.target.value);
 
